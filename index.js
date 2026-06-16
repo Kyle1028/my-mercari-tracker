@@ -34,10 +34,10 @@ function saveSeenItems(items) {
     fs.writeFileSync(DATA_FILE, JSON.stringify({ seenItems: items }, null, 2));
 }
 
-// 發送 LINE 通知
-async function sendLineNotification(item, lineToken, lineUserId) {
-    if (!lineToken || !lineUserId) {
-        console.log("⚠️ 未設定 LINE 憑證，跳過通知發送。");
+// 發送 LINE 通知 (支援發送給多個目標)
+async function sendLineNotification(item, lineToken, targetIds) {
+    if (!lineToken || !targetIds || targetIds.length === 0) {
+        console.log("⚠️ 未設定 LINE 憑證或沒有訂閱者，跳過通知發送。");
         return;
     }
 
@@ -98,22 +98,26 @@ async function sendLineNotification(item, lineToken, lineUserId) {
         ]
     };
 
-    try {
-        await axios.post('https://api.line.me/v2/bot/message/push', message, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${lineToken}`
-            }
-        });
-        console.log(`✅ 已發送 LINE 通知: ${item.id}`);
-    } catch (error) {
-        console.error("❌ LINE 通知發送失敗:", error.response ? error.response.data : error.message);
+    // 對每個目標發送推播
+    for (const targetId of targetIds) {
+        message.to = targetId;
+        try {
+            await axios.post('https://api.line.me/v2/bot/message/push', message, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${lineToken}`
+                }
+            });
+            console.log(`✅ 已發送 LINE 通知至: ${targetId}`);
+        } catch (error) {
+            console.error(`❌ LINE 通知發送給 ${targetId} 失敗:`, error.response ? error.response.data : error.message);
+        }
     }
 }
 
 // 核心爬蟲函式
 async function checkMercari(config) {
-    const { keyword, lineToken, lineUserId } = config;
+    const { keyword, lineToken, targetIds } = config;
     if (!keyword) {
         console.log("💤 尚未設定尋寶關鍵字，略過檢查。");
         return;
@@ -166,7 +170,7 @@ async function checkMercari(config) {
             
             if (!seenItems.includes(item.id)) {
                 console.log(`✨ 發現新商品: ${item.id} - ${item.title.substring(0, 30)}...`);
-                await sendLineNotification(item, lineToken, lineUserId);
+                await sendLineNotification(item, lineToken, targetIds);
                 
                 seenItems.push(item.id);
                 newItemsFound = true;
@@ -215,11 +219,25 @@ async function startLoop() {
             config.keyword = process.env.SEARCH_KEYWORD;
         }
         
-        // 永遠從本地 .env 讀取機密資訊，保護隱私
-        config.lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-        config.lineUserId = process.env.LINE_USER_ID;
+        // 取得所有曾傳訊息給機器人的訂閱者
+        let targetIds = [];
+        if (redis) {
+            try {
+                targetIds = await redis.smembers('mercari_subscribers');
+            } catch (e) {
+                console.error("❌ 無法取得訂閱者名單");
+            }
+        }
         
-        // 檢查頻率優先使用雲端設定，否則使用本地 .env
+        // 如果雲端沒有名單，就預設傳給本地設定的老闆
+        if (targetIds.length === 0 && process.env.LINE_USER_ID) {
+            targetIds = [process.env.LINE_USER_ID];
+        }
+        
+        config.targetIds = targetIds;
+        
+        // 從本地 .env 讀取機密資訊與檢查頻率
+        config.lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
         config.interval = parseInt(config.interval) || parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5;
 
         if (config.keyword) {

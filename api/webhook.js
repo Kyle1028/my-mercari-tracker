@@ -62,16 +62,16 @@ export default async function handler(req, res) {
     for (const event of events) {
         if (event.type === 'message' && event.message.type === 'text') {
             const replyToken = event.replyToken;
-            const userId = event.source.userId;
+            // 支援群組或個人對話
+            const sourceId = event.source.groupId || event.source.userId;
             const text = event.message.text.trim();
 
-            // 安全防護：如果不是主人傳的訊息，直接忽略或回絕
-            if (myUserId && userId !== myUserId) {
-                await replyToLine(replyToken, "⛔ 抱歉，您沒有權限使用此機器人。");
-                continue;
+            // 將發言的群組或個人加入訂閱廣播名單
+            if (sourceId) {
+                await redis.sadd('mercari_subscribers', sourceId);
             }
 
-            // 讀取目前的設定
+            // 讀取共用的設定
             let config = await getConfig();
             let keywordsArray = config.keyword 
                 ? config.keyword.split(/[\n,]+/).map(k => k.trim()).filter(k => k.length > 0)
