@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercari 尋寶雷達 - 遠端控制面板</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-primary: #ef4444;
+            --accent-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --accent-gradient-hover: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-focus: rgba(239, 68, 68, 0.25);
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(239, 68, 68, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0 0 12px 0;
+            background: linear-gradient(to right, #ffffff, #fca5a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper span {
+            position: absolute;
+            left: 16px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 14px 16px 14px 48px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px var(--input-focus);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-badge .material-symbols-outlined {
+            font-size: 18px;
+        }
+
+        .save-btn {
+            width: 100%;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 16px;
+        }
+
+        .save-btn:hover {
+            background: var(--accent-gradient-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -10px rgba(239, 68, 68, 0.6);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Mercari Tracker</h1>
+            <p>Remote Control Panel</p>
+        </div>
+
+        <div class="card">
+            <div style="text-align: center;">
+                <div class="status-badge" id="statusBadge">
+                    <span class="material-symbols-outlined">cloud_sync</span>
+                    <span id="statusText">載入中...</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>尋寶關鍵字 Keyword</label>
+                <div class="input-wrapper">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" id="keyword" placeholder="例如: Nintendo Switch">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>檢查頻率 Interval (分鐘)</label>
+                <div class="input-wrapper">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <input type="number" id="interval" value="5" min="1" max="60">
+                </div>
+            </div>
+            
+            <div style="border-top: 1px solid var(--glass-border); margin: 32px 0;"></div>
+
+            <div class="form-group">
+                <label>LINE User ID</label>
+                <div class="input-wrapper">
+                    <span class="material-symbols-outlined">person</span>
+                    <input type="text" id="lineUserId" placeholder="您的 LINE 使用者 ID">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>LINE Channel Token</label>
+                <div class="input-wrapper">
+                    <span class="material-symbols-outlined">key</span>
+                    <input type="password" id="lineToken" placeholder="您的 LINE Bot Token">
+                </div>
+            </div>
+
+            <button class="save-btn" onclick="saveConfig()">
+                <span class="material-symbols-outlined">save</span>
+                儲存並同步至本地爬蟲
+            </button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">✅ 設定已儲存！本地爬蟲將於下次檢查時自動套用。</div>
+
+    <script>
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    if(config.keyword) {
+                        document.getElementById('keyword').value = config.keyword || '';
+                        document.getElementById('interval').value = config.interval || 5;
+                        document.getElementById('lineUserId').value = config.lineUserId || '';
+                        document.getElementById('lineToken').value = config.lineToken || '';
+                        document.getElementById('statusText').innerText = '雲端連線正常';
+                    } else {
+                        document.getElementById('statusText').innerText = '尚未設定';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading config:', error);
+                document.getElementById('statusText').innerText = '連線失敗';
+                document.getElementById('statusBadge').style.background = 'rgba(239, 68, 68, 0.1)';
+                document.getElementById('statusBadge').style.color = '#ef4444';
+            }
+        }
+
+        async function saveConfig() {
+            const btn = document.querySelector('.save-btn');
+            btn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> 儲存中...';
+            btn.style.opacity = '0.7';
+
+            const config = {
+                keyword: document.getElementById('keyword').value,
+                interval: document.getElementById('interval').value,
+                lineUserId: document.getElementById('lineUserId').value,
+                lineToken: document.getElementById('lineToken').value
+            };
+
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                if (response.ok) {
+                    showToast();
+                } else {
+                    alert('儲存失敗，請重試！');
+                }
+            } catch (error) {
+                alert('連線錯誤！');
+            } finally {
+                btn.innerHTML = '<span class="material-symbols-outlined">save</span> 儲存並同步至本地爬蟲';
+                btn.style.opacity = '1';
+            }
+        }
+
+        // 頁面載入時讀取設定
+        window.addEventListener('DOMContentLoaded', loadConfig);
+    </script>
+</body>
+</html>
