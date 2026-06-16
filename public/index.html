@@ -289,6 +289,14 @@
             }
         }
 
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         // 頁面載入時讀取設定
         window.addEventListener('DOMContentLoaded', loadConfig);
     </script>
