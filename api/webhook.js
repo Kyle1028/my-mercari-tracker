@@ -100,6 +100,10 @@ export default async function handler(req, res) {
                 } else {
                     replyMessage = "📭 目前沒有追蹤任何商品。\n可以點擊「新增」來加入！";
                 }
+            } else if (text === "關機") {
+                config.command = 'shutdown';
+                await saveConfig(config);
+                replyMessage = "🛑 已向總部發送關機指令！家裡的爬蟲將在下一次檢查時自動關閉。";
             } 
             // 2. 處理狀態機的後續回答 或 舊版的一行指令
             else if (state === 'add' || text.startsWith("新增 ")) {
@@ -147,7 +151,7 @@ export default async function handler(req, res) {
 
             } else {
                 // 如果沒有狀態，且輸入了無法辨識的文字
-                replyMessage = `🤖 【小秘書使用說明】\n\n您可以點擊下方的選單按鈕，或是直接輸入以下文字：\n\n🔹 新增\n🔹 刪除\n🔹 列表\n🔹 頻率`;
+                replyMessage = `🤖 【小秘書使用說明】\n\n您可以點擊下方的選單按鈕，或是直接輸入以下文字：\n\n🔹 新增\n🔹 刪除\n🔹 列表\n🔹 頻率\n🔹 關機`;
             }
 
             // 發送回覆

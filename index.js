@@ -240,6 +240,28 @@ async function startLoop() {
         config.lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
         config.interval = parseInt(config.interval) || parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5;
 
+        // 檢查是否有遠端關機指令
+        if (config.command === 'shutdown') {
+            console.log("\n🛑 收到雲端關機指令！正在關閉爬蟲...");
+            // 清除雲端的關機指令，以免下次一啟動又立刻關機
+            config.command = '';
+            if (redis) {
+                await redis.set('mercari_config', JSON.stringify(config));
+            }
+            // 發送最後的道別通知
+            for (const targetId of targetIds) {
+                try {
+                    await axios.post('https://api.line.me/v2/bot/message/push', {
+                        to: targetId,
+                        messages: [{ type: 'text', text: '🛑 爬蟲機器人已成功關機，辛苦了！\n(若要重新啟動，請回家打開電腦執行 start.bat)' }]
+                    }, {
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.lineToken}` }
+                    });
+                } catch (e) {}
+            }
+            process.exit(0);
+        }
+
         if (config.keyword) {
             // 將關鍵字字串依換行或逗號切割成陣列，並去除空白與空字串
             const keywordsArray = config.keyword
