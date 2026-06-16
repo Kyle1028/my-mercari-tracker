@@ -223,7 +223,28 @@ async function startLoop() {
         config.interval = parseInt(config.interval) || parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5;
 
         if (config.keyword) {
-            await checkMercari(config);
+            // 將關鍵字字串依換行或逗號切割成陣列，並去除空白與空字串
+            const keywordsArray = config.keyword
+                .split(/[\n,]+/)
+                .map(k => k.trim())
+                .filter(k => k.length > 0);
+            
+            if (keywordsArray.length > 0) {
+                console.log(`\n📦 準備掃描 ${keywordsArray.length} 組商品...`);
+                for (let i = 0; i < keywordsArray.length; i++) {
+                    const singleKeyword = keywordsArray[i];
+                    // 覆寫 config.keyword 傳入單一關鍵字
+                    await checkMercari({ ...config, keyword: singleKeyword });
+                    
+                    // 除了最後一個，每個關鍵字掃描完休息 3 秒，避免被封鎖
+                    if (i < keywordsArray.length - 1) {
+                        console.log(`⏳ 休息 3 秒鐘後繼續下一個商品...`);
+                        await new Promise(r => setTimeout(r, 3000));
+                    }
+                }
+            } else {
+                console.log("💤 關鍵字列表為空，休眠中...");
+            }
         } else {
             console.log("💤 雲端控制台尚未設定關鍵字，休眠中...");
         }

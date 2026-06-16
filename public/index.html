@@ -97,7 +97,8 @@
             color: var(--text-secondary);
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             background: var(--input-bg);
             border: 1px solid var(--glass-border);
@@ -112,7 +113,14 @@
             box-sizing: border-box;
         }
 
-        .form-group input:focus {
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            padding-top: 16px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 4px var(--input-focus);
         }
@@ -203,10 +211,10 @@
             </div>
 
             <div class="form-group">
-                <label>尋寶關鍵字 Keyword</label>
+                <label>尋寶關鍵字 Keyword (一行一個)</label>
                 <div class="input-wrapper">
-                    <span class="material-symbols-outlined">search</span>
-                    <input type="text" id="keyword" placeholder="例如: Nintendo Switch">
+                    <span class="material-symbols-outlined" style="top: 16px;">search</span>
+                    <textarea id="keyword" placeholder="Nintendo Switch&#10;PS5 主機&#10;薩爾達傳說"></textarea>
                 </div>
             </div>
 
