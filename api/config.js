@@ -1,10 +1,7 @@
-import { Redis } from '@upstash/redis';
+import Redis from 'ioredis';
 
-// 初始化 Redis 連線 (使用 Vercel 環境變數中的 REDIS_URL)
-const redis = new Redis({
-  url: process.env.KV_REST_API_URL || process.env.REDIS_URL,
-  token: process.env.KV_REST_API_TOKEN || "token",
-});
+// 初始化 Redis 連線 (直接使用您提供的 REDIS_URL)
+const redis = new Redis(process.env.REDIS_URL || process.env.KV_URL);
 
 export default async function handler(req, res) {
     // 解決 CORS 問題
@@ -41,6 +38,6 @@ export default async function handler(req, res) {
         }
     } catch (error) {
         console.error('Redis API Error:', error);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
 }
