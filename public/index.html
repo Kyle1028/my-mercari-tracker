@@ -210,32 +210,6 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>檢查頻率 Interval (分鐘)</label>
-                <div class="input-wrapper">
-                    <span class="material-symbols-outlined">schedule</span>
-                    <input type="number" id="interval" value="5" min="1" max="60">
-                </div>
-            </div>
-            
-            <div style="border-top: 1px solid var(--glass-border); margin: 32px 0;"></div>
-
-            <div class="form-group">
-                <label>LINE User ID</label>
-                <div class="input-wrapper">
-                    <span class="material-symbols-outlined">person</span>
-                    <input type="text" id="lineUserId" placeholder="您的 LINE 使用者 ID">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>LINE Channel Token</label>
-                <div class="input-wrapper">
-                    <span class="material-symbols-outlined">key</span>
-                    <input type="password" id="lineToken" placeholder="您的 LINE Bot Token">
-                </div>
-            </div>
-
             <button class="save-btn" onclick="saveConfig()">
                 <span class="material-symbols-outlined">save</span>
                 儲存並同步至本地爬蟲
@@ -253,9 +227,6 @@
                     const config = await response.json();
                     if(config.keyword) {
                         document.getElementById('keyword').value = config.keyword || '';
-                        document.getElementById('interval').value = config.interval || 5;
-                        document.getElementById('lineUserId').value = config.lineUserId || '';
-                        document.getElementById('lineToken').value = config.lineToken || '';
                         document.getElementById('statusText').innerText = '雲端連線正常';
                     } else {
                         document.getElementById('statusText').innerText = '尚未設定';
@@ -275,10 +246,7 @@
             btn.style.opacity = '0.7';
 
             const config = {
-                keyword: document.getElementById('keyword').value,
-                interval: document.getElementById('interval').value,
-                lineUserId: document.getElementById('lineUserId').value,
-                lineToken: document.getElementById('lineToken').value
+                keyword: document.getElementById('keyword').value
             };
 
             try {

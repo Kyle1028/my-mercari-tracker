@@ -199,7 +199,7 @@ async function startLoop() {
     console.log("🚀 Mercari 雙棲爬蟲機器人已啟動！正等待雲端指令...");
 
     while (true) {
-        let config = { keyword: null, interval: 5, lineToken: null, lineUserId: null };
+        let config = { keyword: null };
         
         if (redis) {
             try {
@@ -211,12 +211,14 @@ async function startLoop() {
                 console.error("❌ 無法從 Redis 讀取設定:", e.message);
             }
         } else {
-            // 如果沒設定 Redis，就使用本地 .env 的舊設定當備用
-            config.lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-            config.lineUserId = process.env.LINE_USER_ID;
-            config.interval = parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5;
-            // 這裡不再讀取本地 SEARCH_KEYWORD 以強調雲端控制
+            // 如果沒設定 Redis，就使用本地 .env
+            config.keyword = process.env.SEARCH_KEYWORD;
         }
+        
+        // 永遠從本地 .env 讀取機密資訊與檢查頻率，保護隱私
+        config.lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+        config.lineUserId = process.env.LINE_USER_ID;
+        config.interval = parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5;
 
         if (config.keyword) {
             await checkMercari(config);
