@@ -210,6 +210,14 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label>檢查頻率 Interval (分鐘)</label>
+                <div class="input-wrapper">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <input type="number" id="interval" value="5" min="1" max="60">
+                </div>
+            </div>
+
             <button class="save-btn" onclick="saveConfig()">
                 <span class="material-symbols-outlined">save</span>
                 儲存並同步至本地爬蟲
@@ -227,6 +235,7 @@
                     const config = await response.json();
                     if(config.keyword) {
                         document.getElementById('keyword').value = config.keyword || '';
+                        document.getElementById('interval').value = config.interval || 5;
                         document.getElementById('statusText').innerText = '雲端連線正常';
                     } else {
                         document.getElementById('statusText').innerText = '尚未設定';
@@ -246,7 +255,8 @@
             btn.style.opacity = '0.7';
 
             const config = {
-                keyword: document.getElementById('keyword').value
+                keyword: document.getElementById('keyword').value,
+                interval: document.getElementById('interval').value
             };
 
             try {

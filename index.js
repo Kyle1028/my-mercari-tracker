@@ -215,10 +215,12 @@ async function startLoop() {
             config.keyword = process.env.SEARCH_KEYWORD;
         }
         
-        // 永遠從本地 .env 讀取機密資訊與檢查頻率，保護隱私
+        // 永遠從本地 .env 讀取機密資訊，保護隱私
         config.lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
         config.lineUserId = process.env.LINE_USER_ID;
-        config.interval = parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5;
+        
+        // 檢查頻率優先使用雲端設定，否則使用本地 .env
+        config.interval = parseInt(config.interval) || parseInt(process.env.CHECK_INTERVAL_MINUTES) || 5;
 
         if (config.keyword) {
             await checkMercari(config);
